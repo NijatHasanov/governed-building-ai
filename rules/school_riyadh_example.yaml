@@ -1,0 +1,74 @@
+# Building Rules Format v0.1 - example
+# Written by the people who use the building, readable by any controller.
+# This example is illustrative: values were chosen for a demo school block,
+# not agreed with a real school.
+
+format: building-rules/0.1
+building:
+  name: "Demo school block"
+  location: "Riyadh (illustrative)"
+  zones: [classrooms]
+
+authors:
+  - role: "School facilities staff"
+  - role: "Teachers' representative"
+  - role: "Parents' council"
+
+schedule:
+  occupied:
+    days: [sun, mon, tue, wed, thu]
+    from: "07:00"
+    to: "14:00"
+  precool_window:
+    from: "05:00"
+    to: "07:00"
+
+rules:
+  - id: max-temp-occupied
+    description: "Classrooms must not be warmer than 25.5 C while students are inside."
+    when: occupied
+    limit: { setpoint_max_c: 25.5 }
+    severity: hard
+
+  - id: min-temp-occupied
+    description: "Do not overcool below 21 C while students are inside."
+    when: occupied
+    limit: { setpoint_min_c: 21.0 }
+    severity: hard
+
+  - id: fresh-air-minimum
+    description: "At least 8 litres per second of fresh air per person while occupied."
+    when: occupied
+    limit: { fresh_air_lps_per_person_min: 8.0 }
+    severity: hard
+
+  - id: co2-target
+    description: "Aim to keep CO2 below 1100 ppm; alert staff if exceeded."
+    when: occupied
+    target: { co2_ppm_max: 1100 }
+    severity: alert
+
+  - id: precool-only-in-window
+    description: "Pre-cooling before school is allowed only between 05:00 and 07:00."
+    when: unoccupied
+    limit: { cooling_allowed_only_in: precool_window }
+    severity: hard
+
+  - id: peak-power-cap
+    description: "Keep cooling electricity below 30 kW to protect the building's supply."
+    when: always
+    limit: { cooling_power_kw_max: 30 }
+    severity: soft
+
+decision_mode: recommend   # recommend | supervised | autonomous
+
+explanations:
+  language: [en, ar]
+  log_every_decision: true
+
+data_terms:
+  occupancy_data:
+    stays_on_site: true
+    retention_days: 30
+    sharing: aggregate_only
+    withdrawable: true
